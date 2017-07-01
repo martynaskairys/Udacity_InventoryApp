@@ -11,7 +11,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +19,11 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.martynaskairys.udacity_inventoryapp.data.InventoryContract;
+
+//import android.support.v7.app.LoaderManager;
+//import android.support.v7.content.CursorLoader;
+//import android.support.v7.content.Loader;
+//import android.support.v7.widget.SimpleCursorAdapter;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -73,7 +77,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -114,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 InventoryContract.InventoryEntry._ID,
                 InventoryContract.InventoryEntry.PRODUCT_NAME,
                 InventoryContract.InventoryEntry.PRODUCT_QUANTITY,
-                InventoryContract.InventoryEntry.PRODUCT_PRICE,
+                InventoryContract.InventoryEntry.PRODUCT_PRICE
         };
 
         return new CursorLoader(this,
@@ -125,12 +128,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
-    mInventoryCursorAdaptor.swapCursor(data);
+        mInventoryCursorAdaptor.swapCursor(data);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
-    mInventoryCursorAdaptor.swapCursor(null);
+        mInventoryCursorAdaptor.swapCursor(null);
     }
 }

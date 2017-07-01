@@ -2,7 +2,6 @@ package com.martynaskairys.udacity_inventoryapp;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,10 +38,6 @@ public class InventoryCursorAdaptor extends CursorAdapter {
         String productName = cursor.getString(productNameColumnIndex);
         String productQuantity = cursor.getString(productQuantityColumnIndex);
         String productPrice = cursor.getString(productPriceColumnIndex);
-
-        if (TextUtils.isEmpty(productName)) {
-            productName = "unknown product";
-        }
 
         productNameTextView.setText(productName);
         productQuantityTextView.setText(productQuantity);
