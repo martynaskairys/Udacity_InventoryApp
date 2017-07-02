@@ -11,9 +11,11 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -31,6 +33,7 @@ import android.widget.Toast;
 import com.martynaskairys.udacity_inventoryapp.data.ProductContract;
 import com.martynaskairys.udacity_inventoryapp.data.ProductDbHelper;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -160,7 +163,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 ProductContract.ProductEntry._ID,
                 ProductContract.ProductEntry.COLUMN_PRODUCT_NAME,
                 ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY,
-                ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE
+                ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE,
+                ProductContract.ProductEntry.KEY_IMAGE
+
         };
 
         return new CursorLoader(this,
@@ -234,7 +239,12 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         String nameString = mNameEditText.getText().toString().trim();
         String quantityString = mQuantityEditText.getText().toString().trim();
         String priceString = mPriceEditText.getText().toString().trim();
-//        String picture = mImageView.getDrawable().toString().trim();
+
+        Bitmap imageBitmap = ((BitmapDrawable)mImageView.getDrawable()).getBitmap();
+        ByteArrayOutputStream b =new ByteArrayOutputStream();
+        imageBitmap.compress(Bitmap.CompressFormat.PNG,100, b);
+        byte[] imageByteArray = b.toByteArray();
+
 
         if (mCurrentProductUri == null &&
                 TextUtils.isEmpty(nameString) &&
@@ -259,7 +269,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         values.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, price);
 
 //        values.put(ProductContract.ProductEntry.KEY_IMAGE, mUri.toString());
-        values.put(ProductContract.ProductEntry.KEY_IMAGE, mCurrentProductUri.toString());
+        values.put(ProductContract.ProductEntry.KEY_IMAGE, imageByteArray);
 
         if (mCurrentProductUri == null) {
 
@@ -378,12 +388,12 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             String name = cursor.getString(nameColumnIndex);
             int quantity = cursor.getInt(quantityColumnIndex);
             int price = cursor.getInt(priceColumnIndex);
-            String image = cursor.getString(pictureColumnIndex);
+            byte[] bitmap = cursor.getBlob(pictureColumnIndex);
 
             mNameEditText.setText(name);
             mQuantityEditText.setText(Integer.toString(quantity));
             mPriceEditText.setText(Integer.toString(price));
-            mImageView.setImageURI(Uri.parse(image));
+            mImageView.setImageURI(mCurrentProductUri);
         }
     }
 
@@ -459,12 +469,21 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
 
-            if (data != null) {
+            if (data != null) try {
 //                mUri = data.getData();
 //                mImageView.setImageURI(mUri);
-                mCurrentProductUri = data.getData();
-                mImageView.setImageURI(mCurrentProductUri);
-                mImageView.invalidate();
+
+               mCurrentProductUri = data.getData();
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),mCurrentProductUri);
+                mImageView = (ImageView) findViewById(R.id.image_view);
+                mImageView.setImageBitmap(bitmap);
+
+//                mCurrentProductUri = data.getData();
+//                mImageView.setImageURI(mCurrentProductUri);
+//                mImageView.invalidate();
+            }
+            catch (Exception e){
+                e.printStackTrace();
             }
         }
 
