@@ -57,8 +57,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private ImageView mImageView;
     private Uri imageUri;
 
+    private byte[] mImageByteArray;
+
     private ProductDbHelper dbHelper;
-//    private Uri mUri;
 
 
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
@@ -166,7 +167,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY,
                 ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE,
                 ProductContract.ProductEntry.KEY_IMAGE
-
         };
 
         return new CursorLoader(this,
@@ -228,9 +228,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
         super.onSaveInstanceState(outState, outPersistentState);
-
-//        if (mUri != null)
-//            outState.putString(STATE_URI, mUri.toString());
         if (mCurrentProductUri != null)
             outState.putString(STATE_URI, mCurrentProductUri.toString());
     }
@@ -241,17 +238,24 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         String quantityString = mQuantityEditText.getText().toString().trim();
         String priceString = mPriceEditText.getText().toString().trim();
 
-        Bitmap imageBitmap = ((BitmapDrawable)mImageView.getDrawable()).getBitmap();
-        ByteArrayOutputStream b =new ByteArrayOutputStream();
-        imageBitmap.compress(Bitmap.CompressFormat.PNG,100, b);
-        byte[] imageByteArray = b.toByteArray();
+        if(TextUtils.isEmpty(nameString)||TextUtils.isEmpty(quantityString)
+                ||TextUtils.isEmpty(priceString)){
+            Toast.makeText(this, "fill out all values", Toast.LENGTH_SHORT).show();
+        }
 
+        if (mImageView.getDrawable()!=null) {
+            Bitmap imageBitmap = ((BitmapDrawable) mImageView.getDrawable()).getBitmap();
+            ByteArrayOutputStream b = new ByteArrayOutputStream();
+            imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, b);
+        }else{
+            Toast.makeText(this, "upload image", Toast.LENGTH_SHORT).show();
+        }
 
         if (mCurrentProductUri == null &&
                 TextUtils.isEmpty(nameString) &&
                 TextUtils.isEmpty(quantityString) &&
                 TextUtils.isEmpty(priceString)) {
-            return;
+            Toast.makeText(this, "info needed", Toast.LENGTH_SHORT).show();
         }
 
         ContentValues values = new ContentValues();
@@ -268,9 +272,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             price = Integer.parseInt(priceString);
         }
         values.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, price);
-
-//        values.put(ProductContract.ProductEntry.KEY_IMAGE, mUri.toString());
-        values.put(ProductContract.ProductEntry.KEY_IMAGE, imageByteArray);
+        values.put(ProductContract.ProductEntry.KEY_IMAGE, imageUri.toString());
 
         if (mCurrentProductUri == null) {
 
@@ -389,8 +391,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             String name = cursor.getString(nameColumnIndex);
             int quantity = cursor.getInt(quantityColumnIndex);
             int price = cursor.getInt(priceColumnIndex);
-            byte[] bitmap = cursor.getBlob(pictureColumnIndex);
 
+            imageUri = Uri.parse(cursor.getString(pictureColumnIndex));
             mNameEditText.setText(name);
             mQuantityEditText.setText(Integer.toString(quantity));
             mPriceEditText.setText(Integer.toString(price));
@@ -471,17 +473,12 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
 
             if (data != null) try {
-//                mUri = data.getData();
-//                mImageView.setImageURI(mUri);
 
                 imageUri = data.getData();
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),imageUri);
                 mImageView = (ImageView) findViewById(R.id.image_view);
                 mImageView.setImageBitmap(bitmap);
 
-//                mCurrentProductUri = data.getData();
-//                mImageView.setImageURI(mCurrentProductUri);
-//                mImageView.invalidate();
             }
             catch (Exception e){
                 e.printStackTrace();

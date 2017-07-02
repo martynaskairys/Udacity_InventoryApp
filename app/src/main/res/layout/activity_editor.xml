@@ -85,8 +85,11 @@
 
     <ImageView
         android:id="@+id/image_view"
-        android:layout_height="64dp"
-        android:layout_width="64dp"/>
+        android:layout_marginTop="16dp"
+        android:layout_height="128dp"
+        android:layout_gravity="center"
+        android:scaleType="centerCrop"
+        android:layout_width="128dp"/>
 
 
 </LinearLayout>
