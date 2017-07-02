@@ -13,4 +13,5 @@
         android:id="@+id/delete_entry"
         android:title="@string/delete"
         app:showAsAction="never" />
+
 </menu>

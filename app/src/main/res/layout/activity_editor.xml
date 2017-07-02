@@ -17,10 +17,11 @@
             android:layout_height="wrap_content"
             android:text="Product name: " />
 
-        <TextView
+        <EditText
+            android:id="@+id/edit_product_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="spinner" />
+            android:hint="Give your product name" />
 
     </LinearLayout>
 
@@ -32,29 +33,60 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Items left: " />
+            android:text="Price: " />
 
-        <TextView
+        <EditText
+            android:id="@+id/edit_product_price"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="write quantity" />
+            android:hint="write price"
+            android:inputType="number" />
 
+    </LinearLayout>
+
+    <LinearLayout
+        android:padding="32dp"
+        android:layout_marginTop="24dp"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:layout_width="64dp"
+            android:id="@+id/decrease_button"
+            android:layout_height="64dp"
+            android:text="-" />
+
+        <EditText
+            android:id="@+id/edit_product_quantity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:hint="write quantity"
+            android:inputType="number" />
+
+        <Button
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:id="@+id/increase_button"
+            android:text="+" />
     </LinearLayout>
 
     <Button
         android:layout_width="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_gravity="center"
+        android:id="@+id/add_image"
         android:layout_height="wrap_content"
-        android:text="increase quantity"/>
+        android:text="add image" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="decrease quantity"/>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="order from supplier"/>
+    <ImageView
+        android:id="@+id/image_view"
+        android:layout_height="64dp"
+        android:layout_width="64dp"/>
 
 
 </LinearLayout>

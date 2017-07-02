@@ -1,9 +1,11 @@
 package com.martynaskairys.udacity_inventoryapp;
 
+import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
@@ -14,29 +16,35 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.martynaskairys.udacity_inventoryapp.data.ProductContract;
-
-//import android.support.v7.app.LoaderManager;
-//import android.support.v7.content.CursorLoader;
-//import android.support.v7.content.Loader;
-//import android.support.v7.widget.SimpleCursorAdapter;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int PRODUCT_LOADER = 0;
     ProductCursorAdaptor mProductCursorAdaptor;
+    //    private Button saleButton;
+    private boolean mProductHasChanged = false;
+    private TextView productQuantity;
+
+    private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            mProductHasChanged = true;
+            return false;
+        }
+    };
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -47,6 +55,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         });
 
+        productQuantity = (TextView) findViewById(R.id.productQuantity);
+
+//        saleButton = (Button) findViewById(R.id.sale_button);
+
+//        saleButton.setOnTouchListener(mTouchListener);
+//        saleButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                subtractOneToQuantity();
+//                mProductHasChanged = true;
+//            }
+//        });
+
         ListView inventoryListView = (ListView) findViewById(R.id.list);
         View emptyView = findViewById(R.id.empty_text);
         inventoryListView.setEmptyView(emptyView);
@@ -56,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         inventoryListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 Intent intent = new Intent(MainActivity.this, EditorActivity.class);
                 Uri currentProductUri = ContentUris.withAppendedId(ProductContract.ProductEntry.CONTENT_URI, id);
                 intent.setData(currentProductUri);
@@ -65,6 +86,20 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         });
 
         getLoaderManager().initLoader(PRODUCT_LOADER, null, this);
+    }
+
+    private void subtractOneToQuantity() {
+        String previousValue = productQuantity.getText().toString();
+        int previousValueInt;
+        if (previousValue.isEmpty()) {
+            return;
+        } else if (previousValue.equals("0")) {
+            return;
+        } else {
+            previousValueInt = Integer.parseInt(previousValue);
+            productQuantity.setText(String.valueOf(previousValueInt - 1));
+        }
+
     }
 
     private void insertProduct() {
@@ -98,7 +133,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 return true;
 
             case R.id.delete_entry:
-                deleteProductInfo();
+                AlertDialog dialog = new AlertDialog.Builder(this)
+                        .setTitle("Delete all products")
+                        .setMessage("Are you sure you want to delete everything")
+                        .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                deleteProductInfo();
+
+                            }
+                        })
+                        .setNegativeButton("Cancel",null)
+                        .create();
+                dialog.show();
                 return true;
         }
 

@@ -140,7 +140,7 @@ public class ProductProvider extends ContentProvider {
                 rowsDeleted = database.delete(ProductContract.ProductEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             case PRODUCT_ID:
-                selection = ProductContract.ProductEntry._ID + "?=";
+                selection = ProductContract.ProductEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 rowsDeleted = database.delete(ProductContract.ProductEntry.TABLE_NAME, selection, selectionArgs);
                 break;
@@ -162,7 +162,7 @@ public class ProductProvider extends ContentProvider {
             case PRODUCTS:
                 return updateProduct(uri, values, selection, selectionArgs);
             case PRODUCT_ID:
-                selection = ProductContract.ProductEntry._ID + "?=";
+                selection = ProductContract.ProductEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 return updateProduct(uri, values, selection, selectionArgs);
             default:
