@@ -55,6 +55,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private Button mDecreaseButton;
     private Button mBtnAddImage;
     private ImageView mImageView;
+    private Uri imageUri;
 
     private ProductDbHelper dbHelper;
 //    private Uri mUri;
@@ -393,7 +394,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             mNameEditText.setText(name);
             mQuantityEditText.setText(Integer.toString(quantity));
             mPriceEditText.setText(Integer.toString(price));
-            mImageView.setImageURI(mCurrentProductUri);
+            mImageView.setImageURI(imageUri);
         }
     }
 
@@ -473,8 +474,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 //                mUri = data.getData();
 //                mImageView.setImageURI(mUri);
 
-               mCurrentProductUri = data.getData();
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),mCurrentProductUri);
+                imageUri = data.getData();
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),imageUri);
                 mImageView = (ImageView) findViewById(R.id.image_view);
                 mImageView.setImageBitmap(bitmap);
 
