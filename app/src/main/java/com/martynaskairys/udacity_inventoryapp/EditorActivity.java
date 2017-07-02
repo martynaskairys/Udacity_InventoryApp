@@ -9,25 +9,36 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.martynaskairys.udacity_inventoryapp.data.ProductContract;
 import com.martynaskairys.udacity_inventoryapp.data.ProductDbHelper;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+
 public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
+    private static final String STATE_URI = "STATE_URI";
     private int PICK_IMAGE_REQUEST = 1;
 
     private static final int EXISTING_PRODUCT_LOADER = 0;
@@ -43,6 +54,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private ImageView mImageView;
 
     private ProductDbHelper dbHelper;
+    private Uri mUri;
 
 
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
@@ -81,8 +93,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         dbHelper = new ProductDbHelper(this);
 
 
-
-
         mNameEditText.setOnTouchListener(mTouchListener);
         mQuantityEditText.setOnTouchListener(mTouchListener);
         mPriceEditText.setOnTouchListener(mTouchListener);
@@ -116,8 +126,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                         intent, "Select your picture"
                 ), PICK_IMAGE_REQUEST);
             }
-            });
-        }
+        });
+    }
 
     private void subtractOneToQuantity() {
         String previousValue = mQuantityEditText.getText().toString();
@@ -159,12 +169,60 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     }
 
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        if (savedInstanceState.containsKey(STATE_URI)&&!savedInstanceState.getString(STATE_URI)
+                .equals("")){
+            mUri = Uri.parse(savedInstanceState.getString(STATE_URI));
+
+            ViewTreeObserver viewTreeObserver = mImageView.getViewTreeObserver();
+            viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    mImageView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    mImageView.setImageBitmap(getBitmapFromUri(mUri));
+                }
+            });
+
+        }
+    }
+
+    public Bitmap getBitmapFromUri(Uri uri) {
+
+        if (uri == null || uri.toString().isEmpty())
+            return null;
+
+        InputStream input = null;
+        try {
+            input = this.getContentResolver().openInputStream(uri);
+            Bitmap bitmap = BitmapFactory.decodeStream(input, null, null);
+            input.close();
+            return bitmap;
+
+        } catch (FileNotFoundException fne) {
+            Log.e(LOG_TAG, "failed to load image", fne);
+            return null;
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "failed to load image", e);
+            return null;
+        } finally {
+            try{
+            input.close();
+        }catch(IOException ioe){
+
+        }
+    }
+
+    }
+
     private void saveProduct() {
 
         String nameString = mNameEditText.getText().toString().trim();
         String quantityString = mQuantityEditText.getText().toString().trim();
         String priceString = mPriceEditText.getText().toString().trim();
-        String picture = mImageView.getDrawable().toString().trim();
+//        String picture = mImageView.getDrawable().toString().trim();
 
         if (mCurrentProductUri == null &&
                 TextUtils.isEmpty(nameString) &&
@@ -188,8 +246,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         }
         values.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, price);
 
-        String image= String.valueOf(Integer.parseInt(picture));
-        values.put(ProductContract.ProductEntry.KEY_IMAGE, image);
+//        String image = String.valueOf(Integer.parseInt(picture));
+//        values.put(ProductContract.ProductEntry.KEY_IMAGE, image);
 
         if (mCurrentProductUri == null) {
 
@@ -208,8 +266,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 Toast.makeText(this, "product updated", Toast.LENGTH_SHORT).show();
             }
         }
-
-
     }
 
     @Override
@@ -388,9 +444,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if (requestCode==PICK_IMAGE_REQUEST&&resultCode== Activity.RESULT_OK){
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
 
-            if (data!=null){
+            if (data != null) {
                 Uri uri = data.getData();
                 mImageView.setImageURI(uri);
                 mImageView.invalidate();
