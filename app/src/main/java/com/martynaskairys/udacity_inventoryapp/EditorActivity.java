@@ -13,6 +13,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -25,7 +26,6 @@ import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.martynaskairys.udacity_inventoryapp.data.ProductContract;
@@ -173,8 +173,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
-        if (savedInstanceState.containsKey(STATE_URI)&&!savedInstanceState.getString(STATE_URI)
-                .equals("")){
+        if (savedInstanceState.containsKey(STATE_URI) && !savedInstanceState.getString(STATE_URI)
+                .equals("")) {
             mUri = Uri.parse(savedInstanceState.getString(STATE_URI));
 
             ViewTreeObserver viewTreeObserver = mImageView.getViewTreeObserver();
@@ -208,13 +208,21 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             Log.e(LOG_TAG, "failed to load image", e);
             return null;
         } finally {
-            try{
-            input.close();
-        }catch(IOException ioe){
+            try {
+                input.close();
+            } catch (IOException ioe) {
 
+            }
         }
+
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+
+        if (mUri != null)
+            outState.putString(STATE_URI, mUri.toString());
     }
 
     private void saveProduct() {
@@ -245,6 +253,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             price = Integer.parseInt(priceString);
         }
         values.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, price);
+
+        values.put(ProductContract.ProductEntry.KEY_IMAGE, mUri.toString());
 
 //        String image = String.valueOf(Integer.parseInt(picture));
 //        values.put(ProductContract.ProductEntry.KEY_IMAGE, image);
@@ -332,7 +342,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     }
 
-
     @Override
     public void onBackPressed() {
         if (!mProductHasChanged) {
@@ -351,7 +360,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         showUnsavedChangesDialog(discardButtonClickListener);
     }
 
-
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 
@@ -363,14 +371,17 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             int nameColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME);
             int quantityColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY);
             int priceColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE);
+            int pictureColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.KEY_IMAGE);
 
             String name = cursor.getString(nameColumnIndex);
             int quantity = cursor.getInt(quantityColumnIndex);
             int price = cursor.getInt(priceColumnIndex);
+            String image = cursor.getString(pictureColumnIndex);
 
             mNameEditText.setText(name);
             mQuantityEditText.setText(Integer.toString(quantity));
             mPriceEditText.setText(Integer.toString(price));
+            mImageView.setImageURI(Uri.parse(image));
         }
     }
 
@@ -447,8 +458,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
 
             if (data != null) {
-                Uri uri = data.getData();
-                mImageView.setImageURI(uri);
+                mUri = data.getData();
+                mImageView.setImageURI(mUri);
                 mImageView.invalidate();
             }
         }
