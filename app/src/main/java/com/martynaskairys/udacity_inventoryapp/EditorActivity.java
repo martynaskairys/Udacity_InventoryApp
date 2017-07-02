@@ -188,8 +188,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         }
         values.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, price);
 
-        int image=Integer.parseInt(picture);
-        values.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PICTURE, image);
+        String image= String.valueOf(Integer.parseInt(picture));
+        values.put(ProductContract.ProductEntry.KEY_IMAGE, image);
 
         if (mCurrentProductUri == null) {
 
