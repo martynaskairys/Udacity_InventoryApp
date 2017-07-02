@@ -54,7 +54,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private ImageView mImageView;
 
     private ProductDbHelper dbHelper;
-    private Uri mUri;
+//    private Uri mUri;
 
 
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
@@ -175,14 +175,16 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         if (savedInstanceState.containsKey(STATE_URI) && !savedInstanceState.getString(STATE_URI)
                 .equals("")) {
-            mUri = Uri.parse(savedInstanceState.getString(STATE_URI));
+//            mUri = Uri.parse(savedInstanceState.getString(STATE_URI));
+            mCurrentProductUri = Uri.parse(savedInstanceState.getString(STATE_URI));
 
             ViewTreeObserver viewTreeObserver = mImageView.getViewTreeObserver();
             viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
                 public void onGlobalLayout() {
                     mImageView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    mImageView.setImageBitmap(getBitmapFromUri(mUri));
+//                    mImageView.setImageBitmap(getBitmapFromUri(mUri));
+                    mImageView.setImageBitmap(getBitmapFromUri(mCurrentProductUri));
                 }
             });
 
@@ -221,8 +223,10 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
         super.onSaveInstanceState(outState, outPersistentState);
 
-        if (mUri != null)
-            outState.putString(STATE_URI, mUri.toString());
+//        if (mUri != null)
+//            outState.putString(STATE_URI, mUri.toString());
+        if (mCurrentProductUri != null)
+            outState.putString(STATE_URI, mCurrentProductUri.toString());
     }
 
     private void saveProduct() {
@@ -254,10 +258,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         }
         values.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, price);
 
-        values.put(ProductContract.ProductEntry.KEY_IMAGE, mUri.toString());
-
-//        String image = String.valueOf(Integer.parseInt(picture));
-//        values.put(ProductContract.ProductEntry.KEY_IMAGE, image);
+//        values.put(ProductContract.ProductEntry.KEY_IMAGE, mUri.toString());
+        values.put(ProductContract.ProductEntry.KEY_IMAGE, mCurrentProductUri.toString());
 
         if (mCurrentProductUri == null) {
 
@@ -458,8 +460,10 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
 
             if (data != null) {
-                mUri = data.getData();
-                mImageView.setImageURI(mUri);
+//                mUri = data.getData();
+//                mImageView.setImageURI(mUri);
+                mCurrentProductUri = data.getData();
+                mImageView.setImageURI(mCurrentProductUri);
                 mImageView.invalidate();
             }
         }
