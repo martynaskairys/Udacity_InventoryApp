@@ -18,7 +18,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.martynaskairys.udacity_inventoryapp.data.InventoryContract;
+import com.martynaskairys.udacity_inventoryapp.data.ProductContract;
 
 //import android.support.v7.app.LoaderManager;
 //import android.support.v7.content.CursorLoader;
@@ -27,8 +27,9 @@ import com.martynaskairys.udacity_inventoryapp.data.InventoryContract;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    InventoryCursorAdaptor mInventoryCursorAdaptor;
     private static final int PRODUCT_LOADER = 0;
+    ProductCursorAdaptor mProductCursorAdaptor;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,14 +51,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         View emptyView = findViewById(R.id.empty_text);
         inventoryListView.setEmptyView(emptyView);
 
-        mInventoryCursorAdaptor = new InventoryCursorAdaptor(this, null);
-        inventoryListView.setAdapter(mInventoryCursorAdaptor);
+        mProductCursorAdaptor = new ProductCursorAdaptor(this, null);
+        inventoryListView.setAdapter(mProductCursorAdaptor);
 
         inventoryListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(MainActivity.this, EditorActivity.class);
-                Uri currentProductUri = ContentUris.withAppendedId(InventoryContract.InventoryEntry.CONTENT_URI, id);
+                Uri currentProductUri = ContentUris.withAppendedId(ProductContract.ProductEntry.CONTENT_URI, id);
                 intent.setData(currentProductUri);
                 startActivity(intent);
             }
@@ -68,11 +69,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private void insertProduct() {
         ContentValues values = new ContentValues();
-        values.put(InventoryContract.InventoryEntry.PRODUCT_NAME, "Macbooko Pro");
-        values.put(InventoryContract.InventoryEntry.PRODUCT_QUANTITY, 0);
-        values.put(InventoryContract.InventoryEntry.PRODUCT_PRICE, 0);
+        values.put(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME, "Macbooko Pro");
+        values.put(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY, 0);
+        values.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, 0);
 
-        Uri newUri = getContentResolver().insert(InventoryContract.InventoryEntry.CONTENT_URI, values);
+        Uri newUri = getContentResolver().insert(ProductContract.ProductEntry.CONTENT_URI, values);
 
     }
 
@@ -106,34 +107,34 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private void deleteProductInfo() {
 
-        int rowsDeleted = getContentResolver().delete(InventoryContract.InventoryEntry.CONTENT_URI, null, null);
+        int rowsDeleted = getContentResolver().delete(ProductContract.ProductEntry.CONTENT_URI, null, null);
         Log.v("MainActivity", rowsDeleted + " rows deleted from products database");
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
 
         String[] projection = {
-                InventoryContract.InventoryEntry._ID,
-                InventoryContract.InventoryEntry.PRODUCT_NAME,
-                InventoryContract.InventoryEntry.PRODUCT_QUANTITY,
-                InventoryContract.InventoryEntry.PRODUCT_PRICE
+                ProductContract.ProductEntry._ID,
+                ProductContract.ProductEntry.COLUMN_PRODUCT_NAME,
+                ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY,
+                ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE
         };
 
         return new CursorLoader(this,
-                InventoryContract.InventoryEntry.CONTENT_URI,
+                ProductContract.ProductEntry.CONTENT_URI,
                 projection, null, null, null);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
-        mInventoryCursorAdaptor.swapCursor(data);
+        mProductCursorAdaptor.swapCursor(data);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
-        mInventoryCursorAdaptor.swapCursor(null);
+        mProductCursorAdaptor.swapCursor(null);
     }
 }

@@ -11,28 +11,31 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+//import android.support.annotation.NonNull;
+//import android.support.annotation.Nullable;
+
 /**
  * Created by martynaskairys on 01/07/2017.
  */
 
-public class InventoryProvider extends ContentProvider {
+public class ProductProvider extends ContentProvider {
 
-    private static final String LOG_TAG = InventoryProvider.class.getSimpleName();
+    private static final String LOG_TAG = ProductProvider.class.getSimpleName();
     private static final int PRODUCTS = 100;
     private static final int PRODUCT_ID = 101;
 
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
     static {
-        sUriMatcher.addURI(InventoryContract.CONTENT_AUTHORITY, InventoryContract.PATH_INVENTORY, PRODUCTS);
-        sUriMatcher.addURI(InventoryContract.CONTENT_AUTHORITY, InventoryContract.PATH_INVENTORY + "/#", PRODUCT_ID);
+        sUriMatcher.addURI(ProductContract.CONTENT_AUTHORITY, ProductContract.PATH_PRODUCTS, PRODUCTS);
+        sUriMatcher.addURI(ProductContract.CONTENT_AUTHORITY, ProductContract.PATH_PRODUCTS + "/#", PRODUCT_ID);
     }
 
-    private InventoryDbHelper mDbHelper;
+    private ProductDbHelper mDbHelper;
 
     @Override
     public boolean onCreate() {
-        mDbHelper = new InventoryDbHelper(getContext());
+        mDbHelper = new ProductDbHelper(getContext());
         return true;
     }
 
@@ -48,13 +51,13 @@ public class InventoryProvider extends ContentProvider {
         int match = sUriMatcher.match(uri);
         switch (match) {
             case PRODUCTS:
-                cursor = database.query(InventoryContract.InventoryEntry.TABLE_NAME, projection,
+                cursor = database.query(ProductContract.ProductEntry.TABLE_NAME, projection,
                         selection, selectionArgs, null, null, sortOrder);
                 break;
             case PRODUCT_ID:
-                selection = InventoryContract.InventoryEntry._ID + "=?";
+                selection = ProductContract.ProductEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf((ContentUris.parseId(uri)))};
-                cursor = database.query(InventoryContract.InventoryEntry.TABLE_NAME, projection,
+                cursor = database.query(ProductContract.ProductEntry.TABLE_NAME, projection,
                         selection, selectionArgs, null, null, sortOrder);
                 break;
             default:
@@ -72,9 +75,9 @@ public class InventoryProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case PRODUCTS:
-                return InventoryContract.InventoryEntry.CONTENT_LIST_TYPE;
+                return ProductContract.ProductEntry.CONTENT_LIST_TYPE;
             case PRODUCT_ID:
-                return InventoryContract.InventoryEntry.CONTENT_ITEM_TYPE;
+                return ProductContract.ProductEntry.CONTENT_ITEM_TYPE;
             default:
                 throw new IllegalStateException("Unknown URI " + uri + " with match " + match);
         }
@@ -96,28 +99,31 @@ public class InventoryProvider extends ContentProvider {
 
     private Uri insertProduct(Uri uri, ContentValues values) {
 
-        String name = values.getAsString(InventoryContract.InventoryEntry.PRODUCT_NAME);
+        String name = values.getAsString(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME);
         if (name == null) {
             throw new IllegalArgumentException("Product requires a name");
         }
 
-        Integer quantity = values.getAsInteger(InventoryContract.InventoryEntry.PRODUCT_QUANTITY);
+        Integer quantity = values.getAsInteger(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY);
         if (quantity != null && quantity < 0) {
             throw new IllegalArgumentException("Quantity can not be less than 0");
         }
 
-        Integer price = values.getAsInteger(InventoryContract.InventoryEntry.PRODUCT_QUANTITY);
+        Integer price = values.getAsInteger(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY);
         if (price != null && price < 0) {
             throw new IllegalArgumentException("Price can not be less than 0");
         }
 
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
 
-        long id = database.insert(InventoryContract.InventoryEntry.TABLE_NAME, null, values);
+        long id = database.insert(ProductContract.ProductEntry.TABLE_NAME, null, values);
         if (id == -1) {
             Log.e(LOG_TAG, "Failed to insert row for " + uri);
             return null;
         }
+
+        getContext().getContentResolver().notifyChange(uri, null);
+
         return ContentUris.withAppendedId(uri, id);
     }
 
@@ -131,17 +137,20 @@ public class InventoryProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case PRODUCTS:
-                rowsDeleted = database.delete(InventoryContract.InventoryEntry.TABLE_NAME, selection, selectionArgs);
+                rowsDeleted = database.delete(ProductContract.ProductEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             case PRODUCT_ID:
-                selection = InventoryContract.InventoryEntry._ID + "?=";
+                selection = ProductContract.ProductEntry._ID + "?=";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-                rowsDeleted = database.delete(InventoryContract.InventoryEntry.TABLE_NAME, selection, selectionArgs);
+                rowsDeleted = database.delete(ProductContract.ProductEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             default:
                 throw new IllegalArgumentException("Deletion not supported for " + uri);
         }
 
+        if (rowsDeleted != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
         return rowsDeleted;
     }
 
@@ -153,7 +162,7 @@ public class InventoryProvider extends ContentProvider {
             case PRODUCTS:
                 return updateProduct(uri, values, selection, selectionArgs);
             case PRODUCT_ID:
-                selection = InventoryContract.InventoryEntry._ID + "?=";
+                selection = ProductContract.ProductEntry._ID + "?=";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 return updateProduct(uri, values, selection, selectionArgs);
             default:
@@ -163,22 +172,22 @@ public class InventoryProvider extends ContentProvider {
 
     private int updateProduct(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 
-        if (values.containsKey(InventoryContract.InventoryEntry.PRODUCT_NAME)) {
-            String name = values.getAsString(InventoryContract.InventoryEntry.PRODUCT_NAME);
+        if (values.containsKey(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME)) {
+            String name = values.getAsString(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME);
             if (name == null) {
                 throw new IllegalArgumentException("Product requires a name");
             }
         }
 
-        if (values.containsKey(InventoryContract.InventoryEntry.PRODUCT_QUANTITY)) {
-            Integer quantity = values.getAsInteger(InventoryContract.InventoryEntry.PRODUCT_QUANTITY);
+        if (values.containsKey(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY)) {
+            Integer quantity = values.getAsInteger(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY);
             if (quantity != null && quantity < 0) {
                 throw new IllegalArgumentException("Quantity can not be less than 0");
             }
         }
 
-        if (values.containsKey(InventoryContract.InventoryEntry.PRODUCT_PRICE)) {
-            Integer price = values.getAsInteger(InventoryContract.InventoryEntry.PRODUCT_QUANTITY);
+        if (values.containsKey(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE)) {
+            Integer price = values.getAsInteger(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY);
             if (price != null && price < 0) {
                 throw new IllegalArgumentException("Price can not be less than 0");
             }
@@ -189,7 +198,7 @@ public class InventoryProvider extends ContentProvider {
         }
 
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
-        int rowsUpdated = database.update(InventoryContract.InventoryEntry.TABLE_NAME, values, selection, selectionArgs);
+        int rowsUpdated = database.update(ProductContract.ProductEntry.TABLE_NAME, values, selection, selectionArgs);
         if (rowsUpdated != 0) {
             getContext().getContentResolver().notifyChange(uri, null);
         }

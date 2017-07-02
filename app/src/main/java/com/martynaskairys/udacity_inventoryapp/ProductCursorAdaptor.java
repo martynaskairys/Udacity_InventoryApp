@@ -8,14 +8,14 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
-import com.martynaskairys.udacity_inventoryapp.data.InventoryContract;
+import com.martynaskairys.udacity_inventoryapp.data.ProductContract;
 
 /**
  * Created by martynaskairys on 01/07/2017.
  */
 
-public class InventoryCursorAdaptor extends CursorAdapter {
-    public InventoryCursorAdaptor(Context context, Cursor c) {
+public class ProductCursorAdaptor extends CursorAdapter {
+    public ProductCursorAdaptor(Context context, Cursor c) {
         super(context, c, 0);
     }
 
@@ -31,9 +31,9 @@ public class InventoryCursorAdaptor extends CursorAdapter {
         TextView productQuantityTextView = (TextView) view.findViewById(R.id.productQuantity);
         TextView productPriceTextView = (TextView) view.findViewById(R.id.productPrice);
 
-        int productNameColumnIndex = cursor.getColumnIndex(InventoryContract.InventoryEntry.PRODUCT_NAME);
-        int productQuantityColumnIndex = cursor.getColumnIndex(InventoryContract.InventoryEntry.PRODUCT_QUANTITY);
-        int productPriceColumnIndex = cursor.getColumnIndex(InventoryContract.InventoryEntry.PRODUCT_PRICE);
+        int productNameColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME);
+        int productQuantityColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY);
+        int productPriceColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE);
 
         String productName = cursor.getString(productNameColumnIndex);
         String productQuantity = cursor.getString(productQuantityColumnIndex);
