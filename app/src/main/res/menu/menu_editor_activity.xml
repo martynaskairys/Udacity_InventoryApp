@@ -7,17 +7,17 @@
 
     <item
         android:id="@+id/action_save"
-        android:title="save"
+        android:title="@string/save"
         android:icon="@drawable/done"
         app:showAsAction="always" />
 
     <item
         android:id="@+id/action_delete"
-        android:title="delete this product"
+        android:title="@string/delete_this_product"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/contact_provider"
-        android:title="contact provider"
+        android:title="@string/contact_provider"
         app:showAsAction="never" />
 </menu>

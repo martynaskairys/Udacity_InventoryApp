@@ -241,15 +241,17 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         if (TextUtils.isEmpty(nameString) || TextUtils.isEmpty(quantityString)
                 || TextUtils.isEmpty(priceString)) {
             Toast.makeText(this, "fill out all values", Toast.LENGTH_SHORT).show();
+            return;
         }
 
-        if (mImageView.getDrawable() != null) {
-            Bitmap imageBitmap = ((BitmapDrawable) mImageView.getDrawable()).getBitmap();
-            ByteArrayOutputStream b = new ByteArrayOutputStream();
-            imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, b);
-        } else {
-            Toast.makeText(this, "upload image", Toast.LENGTH_SHORT).show();
+        if (mImageView.getDrawable() == null) {
+            Toast.makeText(this, "add image", Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        Bitmap imageBitmap = ((BitmapDrawable) mImageView.getDrawable()).getBitmap();
+        ByteArrayOutputStream b = new ByteArrayOutputStream();
+        imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, b);
 
         if (mCurrentProductUri == null &&
                 TextUtils.isEmpty(nameString) &&
@@ -281,6 +283,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 Toast.makeText(this, "Saving product error", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, "Product info saved", Toast.LENGTH_SHORT).show();
+                finish();
             }
         } else {
             int rowsAffected = getContentResolver().update(mCurrentProductUri, values,
@@ -289,6 +292,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 Toast.makeText(this, "updating product error", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, "product updated", Toast.LENGTH_SHORT).show();
+                finish();
             }
         }
     }
@@ -316,7 +320,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         switch (item.getItemId()) {
             case R.id.action_save:
                 saveProduct();
-                finish();
+//                finish();
                 return true;
 
             case R.id.action_delete:

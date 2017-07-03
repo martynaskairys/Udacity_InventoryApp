@@ -28,9 +28,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private static final int PRODUCT_LOADER = 0;
     ProductCursorAdaptor mProductCursorAdaptor;
-    //    private Button saleButton;
     private boolean mProductHasChanged = false;
-    private TextView productQuantity;
 
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
         @Override
@@ -53,8 +51,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 startActivity(intent);
             }
         });
-
-        productQuantity = (TextView) findViewById(R.id.productQuantity);
 
         ListView inventoryListView = (ListView) findViewById(R.id.list);
         View emptyView = findViewById(R.id.empty_text);
