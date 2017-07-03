@@ -40,7 +40,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
     };
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,17 +55,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         });
 
         productQuantity = (TextView) findViewById(R.id.productQuantity);
-
-//        saleButton = (Button) findViewById(R.id.sale_button);
-
-//        saleButton.setOnTouchListener(mTouchListener);
-//        saleButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                subtractOneToQuantity();
-//                mProductHasChanged = true;
-//            }
-//        });
 
         ListView inventoryListView = (ListView) findViewById(R.id.list);
         View emptyView = findViewById(R.id.empty_text);
@@ -88,31 +76,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         getLoaderManager().initLoader(PRODUCT_LOADER, null, this);
     }
 
-    private void subtractOneToQuantity() {
-        String previousValue = productQuantity.getText().toString();
-        int previousValueInt;
-        if (previousValue.isEmpty()) {
-            return;
-        } else if (previousValue.equals("0")) {
-            return;
-        } else {
-            previousValueInt = Integer.parseInt(previousValue);
-            productQuantity.setText(String.valueOf(previousValueInt - 1));
-        }
-
-    }
-
-    private void insertProduct() {
-        ContentValues values = new ContentValues();
-        values.put(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME, "Macbooko Pro");
-        values.put(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY, 0);
-        values.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, 0);
-
-        Uri newUri = getContentResolver().insert(ProductContract.ProductEntry.CONTENT_URI, values);
-
-    }
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -128,10 +91,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         switch (item.getItemId()) {
 
-            case R.id.insert_data:
-                insertProduct();
-                return true;
-
             case R.id.delete_entry:
                 AlertDialog dialog = new AlertDialog.Builder(this)
                         .setTitle("Delete all products")
@@ -143,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
                             }
                         })
-                        .setNegativeButton("Cancel",null)
+                        .setNegativeButton("Cancel", null)
                         .create();
                 dialog.show();
                 return true;

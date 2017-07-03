@@ -238,16 +238,16 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         String quantityString = mQuantityEditText.getText().toString().trim();
         String priceString = mPriceEditText.getText().toString().trim();
 
-        if(TextUtils.isEmpty(nameString)||TextUtils.isEmpty(quantityString)
-                ||TextUtils.isEmpty(priceString)){
+        if (TextUtils.isEmpty(nameString) || TextUtils.isEmpty(quantityString)
+                || TextUtils.isEmpty(priceString)) {
             Toast.makeText(this, "fill out all values", Toast.LENGTH_SHORT).show();
         }
 
-        if (mImageView.getDrawable()!=null) {
+        if (mImageView.getDrawable() != null) {
             Bitmap imageBitmap = ((BitmapDrawable) mImageView.getDrawable()).getBitmap();
             ByteArrayOutputStream b = new ByteArrayOutputStream();
             imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, b);
-        }else{
+        } else {
             Toast.makeText(this, "upload image", Toast.LENGTH_SHORT).show();
         }
 
@@ -475,12 +475,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             if (data != null) try {
 
                 imageUri = data.getData();
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),imageUri);
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
                 mImageView = (ImageView) findViewById(R.id.image_view);
                 mImageView.setImageBitmap(bitmap);
 
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
